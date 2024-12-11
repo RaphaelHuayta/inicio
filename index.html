@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro e Inicio de Sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #user-count-form, #register-form, #login-form, #landing-page, #reset-password-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 300px;
+            margin-top: 20px;
+        }
+        #user-count-form input, #register-form input, #login-form input, #reset-password-form input {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #user-count-form button, #register-form button, #login-form button, #reset-password-form button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        #error-message, #register-message, #reset-password-message {
+            color: red;
+        }
+        .link-button {
+            background: none;
+            color: blue;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: underline;
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+    <div id="user-count-form">
+        <h2>¿Cuántos usuarios deseas crear?</h2>
+        <input type="number" id="user-count" placeholder="Número de usuarios" min="1">
+        <button onclick="setUserCount()">Confirmar</button>
+    </div>
+    <div id="register-form" style="display: none;">
+        <h2>Registro</h2>
+        <input type="text" id="first-name" placeholder="Nombre">
+        <input type="text" id="last-name" placeholder="Apellido">
+        <input type="text" id="birth-date" placeholder="Fecha de nacimiento (DD/MM/YYYY)">
+        <input type="password" id="new-password" placeholder="Contraseña">
+        <button onclick="register()">Registrarse</button>
+        <p id="register-message" style="color: green;"></p>
+        <button class="link-button" onclick="showLoginForm()">Volver a Inicio de Sesión</button>
+    </div>
+    <div id="login-form" style="display: none;">
+        <h2>Inicio de Sesión</h2>
+        <input type="text" id="username" placeholder="Correo electrónico">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button onclick="login()">Iniciar Sesión</button>
+        <p id="error-message" style="color: red;"></p>
+        <button class="link-button" onclick="showResetPasswordForm()">Olvidé mi contraseña</button>
+        <button class="link-button" onclick="showRegisterForm()">Crear Usuario</button>
+    </div>
+    <div id="reset-password-form" style="display: none;">
+        <h2>Restablecer Contraseña</h2>
+        <input type="text" id="reset-username" placeholder="Correo electrónico">
+        <input type="password" id="reset-new-password" placeholder="Nueva Contraseña">
+        <button onclick="resetPassword()">Restablecer</button>
+        <p id="reset-password-message" style="color: red;"></p>
+        <button class="link-button" onclick="showLoginForm()">Volver a Inicio de Sesión</button>
+    </div>
+    <div id="landing-page" style="display: none;">
+        <header>
+            <h1>Bienvenido a Nuestra Página</h1>
+        </header>
+        <section>
+            <h2>Sobre Nosotros</h2>
+            <p>Esta es una página de ejemplo para mostrar cómo funciona el sistema de inicio de sesión.</p>
+            <p>Hemos creado esta landing page básica con HTML y algo de CSS embebido.</p>
+        </section>
+        <footer>
+            <p>&copy; 2024 Mi Empresa. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        let attempts = 0;
+        let userCount = 0;
+        let currentUser = 0;
+
+        // Función para guardar la cantidad de usuarios que se van a crear
+        function setUserCount() {
+            userCount = document.getElementById("user-count").value;
+            if (userCount > 0) {
+                document.getElementById("user-count-form").style.display = "none";
+                document.getElementById("register-form").style.display = "block";
+                document.getElementById("register-message").textContent = `Registro de usuario 1 de ${userCount}`;
+            } else {
+                alert("Por favor, ingrese un número válido de usuarios.");
+            }
+        }
+
+        // Función para registrar un nuevo usuario
+        function register() {
+            const firstName = document.getElementById("first-name").value;
+            const lastName = document.getElementById("last-name").value;
+            const birthDate = document.getElementById("birth-date").value;
+            const newPassword = document.getElementById("new-password").value;
+            const registerMessage = document.getElementById("register-message");
+
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9\s])[A-Za-z\d\S]{8,}$/;
+
+            if (firstName && lastName && birthDate && passwordRegex.test(newPassword)) {
+                const email = `${firstName.slice(0, 2).toLowerCase()}${firstName.split(' ')[1].slice(-2).toLowerCase()}${lastName.slice(-2).toLowerCase()}@gmail.com`;
+                localStorage.setItem(email, newPassword);
+                currentUser++;
+                if (currentUser < userCount) {
+                    registerMessage.textContent = `Registro de usuario ${currentUser + 1} de ${userCount}`;
+                    document.getElementById("first-name").value = '';
+                    document.getElementById("last-name").value = '';
+                    document.getElementById("birth-date").value = '';
+                    document.getElementById("new-password").value = '';
+                } else {
+                    registerMessage.textContent = `Registro exitoso. Su correo electrónico es: ${email}. Ahora puede iniciar sesión.`;
+                    document.getElementById("register-form").style.display = "none";
+                    document.getElementById("login-form").style.display = "block";
+                }
+            } else {
+                registerMessage.textContent = "Por favor complete todos los campos y asegúrese de que la contraseña tenga al menos 8 caracteres, incluyendo una minúscula, una mayúscula, un número y un carácter especial.";
+            }
+        }
+
+        // Función para iniciar sesión
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error-message");
+
+            const storedPassword = localStorage.getItem(username);
+
+            if (attempts >= 3) {
+                errorMessage.textContent = "Cuenta bloqueada. Demasiados intentos fallidos.";
+                return;
+            }
+
+            if (storedPassword && password === storedPassword) {
+                document.getElementById("login-form").style.display = "none";
+                document.getElementById("landing-page").style.display = "block";
+                errorMessage.textContent = "";
+            } else {
+                attempts++;
+                errorMessage.textContent = `Intento fallido. Te quedan ${3 - attempts} intentos.`;
+            }
+        }
+
+        // Función para mostrar el formulario de registro
+        function showRegisterForm() {
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("register-form").style.display = "block";
+        }
+
+        // Función para mostrar el formulario de inicio de sesión
+        function showLoginForm() {
+            document.getElementById("register-form").style.display = "none";
+            document.getElementById("reset-password-form").style.display = "none";
+            document.getElementById("login-form").style.display = "block";
+        }
+
+        // Función para mostrar el formulario de restablecimiento de contraseña
+        function showResetPasswordForm() {
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("reset-password-form").style.display = "block";
+        }
+
+        // Función para restablecer la contraseña
+        function resetPassword() {
+            const resetUsername = document.getElementById("reset-username").value;
+            const resetNewPassword = document.getElementById("reset-new-password").value;
+            const resetPasswordMessage = document.getElementById("reset-password-message");
+
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9\s])[A-Za-z\d\S]{8,}$/;
+
+            // Verificamos si el correo existe en localStorage
+            const storedPassword = localStorage.getItem(resetUsername);
+
+            if (!storedPassword) {
+                resetPasswordMessage.textContent = "Este correo electrónico no está registrado.";
+                return;
+            }
+
+            if (resetUsername && passwordRegex.test(resetNewPassword)) {
+                localStorage.setItem(resetUsername, resetNewPassword);
+                resetPasswordMessage.textContent = "Contraseña restablecida correctamente. Ahora puede iniciar sesión.";
+                setTimeout(() => showLoginForm(), 2000);  // Volver al formulario de login después de 2 segundos
+            } else {
+                resetPasswordMessage.textContent = "Por favor complete todos los campos y asegúrese de que la nueva contraseña sea válida.";
+            }
+        }
+
+        // Función para manejar la flecha hacia atrás del navegador
+        window.addEventListener('popstate', function(event) {
+            if (document.getElementById("register-form").style.display === "block") {
+                showLoginForm();
+            } else if (document.getElementById("reset-password-form").style.display === "block") {
+                showLoginForm();
+            }
+        });
+    </script>
+</body>
+</html>
